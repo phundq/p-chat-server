@@ -46,7 +46,6 @@ export class ReqUserCreate {
 export class ReqUserUpdate {
     @IsNotEmpty()
     id: number;
-    @IsNotEmpty()
     password?: string;
     fullName?: string;
     role?: ERole;
