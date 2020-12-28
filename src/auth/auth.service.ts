@@ -1,6 +1,6 @@
-import { User } from './../user/user.model.i';
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { User } from './../user/user.model.i';
 import { UserService } from './../user/user.service';
 import { jwtConstants } from './constants';
 
@@ -22,13 +22,21 @@ export class AuthService {
         return null;
     }
 
-    async createJWTToken(user: any) {
+    async createJWTToken(user: User) {
         const payload = { username: user.username, sub: user.id };
         console.log(user);
         return {
-            token: this.jwtService.sign(payload, { expiresIn: jwtConstants.expiresIn }),
-            expiresIn: jwtConstants.expiresIn,
-            timeCreated: new Date()
+            user: {
+                id: user.id,
+                username: user.username,
+                fullName: user.fullName,
+                role: user.role,
+            },
+            accessToken: {
+                token: this.jwtService.sign(payload, { expiresIn: jwtConstants.expiresIn }),
+                expiresIn: parseInt(jwtConstants.expiresIn.substring(0, jwtConstants.expiresIn.length - 1)),
+                timeCreated: new Date()
+            }
         };
     }
 
