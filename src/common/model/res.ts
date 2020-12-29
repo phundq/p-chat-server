@@ -1,6 +1,6 @@
-export declare class Rsp {
-    normalErrors: MessageError[];
-    badErrors: MessageError[];
+export interface Rsp {
+    normalErrors?: MessageError[];
+    badErrors?: MessageError[];
 }
 
 export interface MessageError {

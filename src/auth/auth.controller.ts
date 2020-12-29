@@ -1,8 +1,8 @@
-import { ReqLogin } from './auth.model.i';
-import { JwtAuthGuard } from './jwt-auth.guard';
-import { AuthService } from './auth.service';
-import { Controller, Post, Request, UseGuards, Get, Body, HttpException, HttpStatus } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
+import { Body, Controller, Post, Request, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth } from '@nestjs/swagger';
+import { ReqLogin, RspLogin } from './auth.model.i';
+import { AuthService } from './auth.service';
 
 @Controller('auth')
 export class AuthController {
@@ -12,21 +12,27 @@ export class AuthController {
     @Post('/login')
     async login(@Body() req: ReqLogin) {
         const user = await this.authService.validateUser(req.username, req.password);
-        if(user != null){
-            return this.authService.createJWTToken(user);
+        let result: RspLogin = {
+            user: null,
+            accessToken: null,
+            normalErrors: [],
+            badErrors: []
+        };
+        if (user != null) {
+            const resTemp = await this.authService.createJWTToken(user);
+            result.user = resTemp.user;
+            result.accessToken = resTemp.accessToken;
+            return result;
         }
-        throw new HttpException('User name or password incorrect', HttpStatus.BAD_REQUEST);
-        console.log(user);
-        
-        
+        result.normalErrors.push({ id: "system", message: "User name or password incorrect" });
+        return result;
+
     }
 
-    @UseGuards(JwtAuthGuard)
     @ApiBearerAuth()
+    @UseGuards(AuthGuard('jwt'))
     @Post('profile')
     getProfile(@Request() req) {
-        console.log(req.user);
-        
         return req.user;
     }
 }

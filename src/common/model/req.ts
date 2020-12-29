@@ -1,3 +1,3 @@
-export declare class Req {
+export interface Req {
     token: string;
 }

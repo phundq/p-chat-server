@@ -17,6 +17,6 @@ export class UserService extends BaseService<User, UserRepository>{
     if (user) {
       return user;
     }
-    throw new HttpException('User with this email does not exist', HttpStatus.NOT_FOUND);
+    return null;
     }
 }

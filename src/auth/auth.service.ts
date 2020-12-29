@@ -1,30 +1,28 @@
+import { JwtServiceCustom } from './jwt.service.custom';
 import { Injectable } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
 import { User } from './../user/user.model.i';
 import { UserService } from './../user/user.service';
-import { jwtConstants } from './constants';
+import { jwtConstants } from '../common/constant/constants';
 
 @Injectable()
 export class AuthService {
     constructor(
         private userService: UserService,
-        private jwtService: JwtService,
+        private jwtServiceCustom: JwtServiceCustom,
     ) {
 
     }
 
     async validateUser(username: string, password: string): Promise<any> {
         const user: User = await this.userService.findByUsername(username);
-        if (user && user.password === password) {
+        if (user != null && user.password === password) {
             const { password, ...result } = user;
             return result;
         }
         return null;
     }
 
-    async createJWTToken(user: User) {
-        const payload = { username: user.username, sub: user.id };
-        console.log(user);
+    async createJWTToken(user: User) {      
         return {
             user: {
                 id: user.id,
@@ -33,8 +31,8 @@ export class AuthService {
                 role: user.role,
             },
             accessToken: {
-                token: this.jwtService.sign(payload, { expiresIn: jwtConstants.expiresIn }),
-                expiresIn: parseInt(jwtConstants.expiresIn.substring(0, jwtConstants.expiresIn.length - 1)),
+                token: await this.jwtServiceCustom.generateToken(user),
+                expiresIn: parseInt(jwtConstants.accessTokenExpires.substring(0, jwtConstants.accessTokenExpires.length - 1)),
                 timeCreated: new Date()
             }
         };

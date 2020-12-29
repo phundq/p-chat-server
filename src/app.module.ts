@@ -1,5 +1,7 @@
+import { AuthMiddleware } from './common/middleware/auth.middleware';
+import { UserController } from './user/user.controller';
 import { User } from './user/user.model.i';
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Connection } from 'typeorm';
 import { AppController } from './app.controller';
@@ -32,4 +34,8 @@ import { AuthModule } from './auth/auth.module';
 })
 export class AppModule {
   constructor(private connection: Connection) { }
+
+  public configure(consumer: MiddlewareConsumer) {
+    consumer.apply(AuthMiddleware).forRoutes(UserController);
+  }
 }
