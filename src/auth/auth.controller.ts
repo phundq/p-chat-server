@@ -1,5 +1,5 @@
+import { Body, Controller, Post, Request, Res, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { Body, Controller, Post, Request, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { ReqLogin, RspLogin } from './auth.model.i';
 import { AuthService } from './auth.service';
@@ -32,7 +32,8 @@ export class AuthController {
     @ApiBearerAuth()
     @UseGuards(AuthGuard('jwt'))
     @Post('profile')
-    getProfile(@Request() req) {
-        return req.user;
+    async getProfile(@Request() req, @Res() rsp) {
+        rsp.set("Authorization", await this.authService.jwtServiceCustom.generateToken(req.user))
+        rsp.send(req.user);
     }
 }

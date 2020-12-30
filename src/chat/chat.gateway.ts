@@ -1,6 +1,8 @@
+import { SocketConstants } from './../common/constant/socket.constants';
+import { SocketService } from './../socket/socket.service';
 import { WsGuard } from './ws.guard';
-import { UseGuards } from '@nestjs/common';
-import { GatewayMetadata, MessageBody, OnGatewayConnection, OnGatewayDisconnect, SubscribeMessage, WebSocketGateway, WebSocketServer } from "@nestjs/websockets";
+import { UseGuards, Injectable } from '@nestjs/common';
+import { GatewayMetadata, MessageBody, OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit, SubscribeMessage, WebSocketGateway, WebSocketServer } from "@nestjs/websockets";
 import { Server, Socket } from 'socket.io';
 import { JwtServiceCustom } from './../auth/jwt.service.custom';
 import { User } from './../user/user.model.i';
@@ -25,15 +27,28 @@ const options = {
 } as GatewayMetadataExtended;
 
 @WebSocketGateway(options)
-export class ChatGateway {
+export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer() server: Server;
   connectedUsers: string[] = [];
 
   constructor(
+    private socketService: SocketService
   ) { }
 
+  afterInit() {
+    this.socketService.server = this.server;
+  }
+
+  handleConnection(client: Socket, ...args: any[]) {
+    console.log(`Client connected: ${client.id}`);
+  }
+
+  handleDisconnect(client: Socket) {
+    console.log(`Client disconnected: ${client.id}`);
+  }
+
   @UseGuards(WsGuard)
-  @SubscribeMessage('chatToServer')
+  @SubscribeMessage(SocketConstants.CHAT_TO_SERVER)
   handChat(@MessageBody() payload: Messenger) {
     console.log(payload);
     try {
@@ -44,12 +59,13 @@ export class ChatGateway {
     } catch (err) {
       console.log(err);
     }
-    this.server.to(payload.room).emit('chatToClient', payload);
+    this.server.to(payload.room).emit(SocketConstants.CHAT_TO_CLIENT, payload);
   }
 
   @UseGuards(WsGuard)
-  @SubscribeMessage('joinRoom')
+  @SubscribeMessage(SocketConstants.JOIN_ROOM)
   joinRoom(client: Socket, room: string) {
+    console.log("join");
     client.join(room);
   }
 }

@@ -2,13 +2,13 @@ import { JwtServiceCustom } from './jwt.service.custom';
 import { Injectable } from '@nestjs/common';
 import { User } from './../user/user.model.i';
 import { UserService } from './../user/user.service';
-import { jwtConstants } from '../common/constant/constants';
+import { jwtConstants } from '../common/constant/common.constants';
 
 @Injectable()
 export class AuthService {
     constructor(
         private userService: UserService,
-        private jwtServiceCustom: JwtServiceCustom,
+        public jwtServiceCustom: JwtServiceCustom,
     ) {
 
     }
@@ -32,7 +32,7 @@ export class AuthService {
             },
             accessToken: {
                 token: await this.jwtServiceCustom.generateToken(user),
-                expiresIn: parseInt(jwtConstants.accessTokenExpires.substring(0, jwtConstants.accessTokenExpires.length - 1)),
+                expiresIn: jwtConstants.accessTokenExpires,
                 timeCreated: new Date()
             }
         };
