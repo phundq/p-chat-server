@@ -1,12 +1,17 @@
-import { SocketConstants } from './../common/constant/socket.constants';
-import { SocketService } from './../socket/socket.service';
-import { WsGuard } from './ws.guard';
-import { UseGuards, Injectable } from '@nestjs/common';
+import { UseGuards } from '@nestjs/common';
 import { GatewayMetadata, MessageBody, OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit, SubscribeMessage, WebSocketGateway, WebSocketServer } from "@nestjs/websockets";
 import { Server, Socket } from 'socket.io';
 import { JwtServiceCustom } from './../auth/jwt.service.custom';
-import { User } from './../user/user.model.i';
+import { SocketConstants } from './../common/constant/socket.constants';
+import { SocketService } from './../socket/socket.service';
+import { UserService } from './../user/user.service';
 import { Messenger } from './message.i';
+import { WsGuard } from './ws.guard';
+
+export interface SocketConnection {
+  userId: number;
+  client: Socket;
+}
 
 export interface GatewayMetadataExtended extends GatewayMetadata {
   handlePreflightRequest: (req, res) => void;
@@ -29,10 +34,12 @@ const options = {
 @WebSocketGateway(options)
 export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer() server: Server;
-  connectedUsers: string[] = [];
+  connectedList: SocketConnection[] = [];
 
   constructor(
-    private socketService: SocketService
+    private socketService: SocketService,
+    private jwtService: JwtServiceCustom,
+    private userService: UserService,
   ) { }
 
   afterInit() {
@@ -40,11 +47,48 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   }
 
   handleConnection(client: Socket, ...args: any[]) {
+    const bearerToken = client.handshake.headers.authorization.split(' ')[1];
+
+    this.jwtService.verify(bearerToken).then(decoded => {
+      this.userService.findByUsername(decoded.username).then(
+        _user => {
+          this.saveConnection(_user.id, client);
+        }
+      ).catch(
+        err => {
+          console.log("false 1");
+          this.socketService.emitError(client)
+        }
+      )
+    })
+      .catch(err => {
+        console.log("false 2");
+        this.socketService.emitError(client)
+      })
+
     console.log(`Client connected: ${client.id}`);
   }
 
   handleDisconnect(client: Socket) {
     console.log(`Client disconnected: ${client.id}`);
+    this.removeConnection(client);
+  }
+
+  saveConnection(userId: number, client: Socket) {
+    const connect: SocketConnection = {
+      userId: userId,
+      client: client
+    }
+
+    this.connectedList.push(connect);
+  }
+
+  removeConnection(client: Socket) {
+    this.connectedList.forEach((value, index) => {
+      if (value.client.id === client.id) {
+        this.connectedList.splice(index, 1);
+      }
+    })
   }
 
   @UseGuards(WsGuard)
@@ -54,15 +98,19 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     try {
       this.server.in(payload.room).clients((error, clients) => {
         if (error) throw error;
-        console.log(clients);
       });
     } catch (err) {
       console.log(err);
     }
-    this.server.to(payload.room).emit(SocketConstants.CHAT_TO_CLIENT, payload);
+    this.connectedList.forEach((value, index) => {
+      if (value.userId === payload.receiveId) {
+        this.server.to(value.client.id).emit(SocketConstants.CHAT_TO_CLIENT, payload);
+      }
+    })
+
   }
 
-  @UseGuards(WsGuard)
+  // @UseGuards(WsGuard)
   @SubscribeMessage(SocketConstants.JOIN_ROOM)
   joinRoom(client: Socket, room: string) {
     console.log("join");

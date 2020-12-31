@@ -1,9 +1,9 @@
+import { Injectable } from '@nestjs/common';
+import { Server, Socket } from 'socket.io';
+import { JwtServiceCustom } from './../auth/jwt.service.custom';
 import { jwtConstants } from './../common/constant/common.constants';
 import { SocketConstants } from './../common/constant/socket.constants';
 import { User } from './../user/user.model.i';
-import { JwtServiceCustom } from './../auth/jwt.service.custom';
-import { Server, Socket } from 'socket.io';
-import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class SocketService {
@@ -17,12 +17,14 @@ export class SocketService {
 
     emitError(client: Socket) {
         console.log('Invalid credentials');
+        console.log(client.id);
+
         let result = {
             error: 1,
             message: "Invalid credentials"
         }
-        // this.server.emit('socketError', result);
-        client.emit(SocketConstants.TOKEN_INVALID, result);
+        // client.emit(SocketConstants.TOKEN_INVALID, result);
+        this.server.to(client.id).emit(SocketConstants.TOKEN_INVALID, result);
         this.removeUserInfo();
     }
 

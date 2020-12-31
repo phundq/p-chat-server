@@ -1,8 +1,7 @@
-import { User } from './../user/user.model.i';
-import { SocketService } from './../socket/socket.service';
 import { CanActivate, Injectable } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { JwtServiceCustom } from './../auth/jwt.service.custom';
+import { SocketService } from './../socket/socket.service';
 import { UserService } from './../user/user.service';
 
 @Injectable()
@@ -18,8 +17,6 @@ export class WsGuard implements CanActivate {
         context: any,
     ): boolean | any | Promise<boolean | any> | Observable<boolean | any> {
         const bearerToken = context.args[0].handshake.headers.authorization.split(' ')[1];
-        console.log(context.args);
-
         console.log("Token: " + bearerToken);
         try {
             return this.jwtService.verify(bearerToken).then(decoded => {

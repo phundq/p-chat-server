@@ -1,10 +1,9 @@
-import { JwtService } from '@nestjs/jwt';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 import { WsException } from '@nestjs/websockets';
-import * as jwt from 'jsonwebtoken';
+import { jwtConstants } from '../common/constant/common.constants';
 import { User } from '../user/user.model.i';
 import { UserService } from '../user/user.service';
-import { jwtConstants } from '../common/constant/common.constants';
 
 
 @Injectable()
@@ -33,16 +32,12 @@ export class JwtServiceCustom {
     async verify(token: string, isWs: boolean = false): Promise<User | null> {
         try {
             const payload = this.jwtService.verify(token, { secret: jwtConstants.jwtSecret });
-            const user = await this.userService.getById(payload.sub.id);
-
+            const user = await this.userService.getById(payload.sub);
             if (!user) {
                 if (isWs) {
                     throw new WsException('Unauthorized access');
                 } else {
-                    throw new HttpException(
-                        'Unauthorized access',
-                        HttpStatus.BAD_REQUEST
-                    );
+                    throw new HttpException('Unauthorized access', HttpStatus.BAD_REQUEST);
                 }
             }
 

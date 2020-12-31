@@ -1,6 +1,7 @@
 export interface Messenger {
-    userId : string,
-    room : string,
-    messenger : string
-    time: Date,
-  }
+  senderId: number,
+  receiveId: number,
+  room: string,
+  messenger: string
+  time: Date,
+}
