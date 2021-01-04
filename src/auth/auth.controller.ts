@@ -1,3 +1,5 @@
+import { RspUser } from './../user/user.model.i';
+import { UserService } from './../user/user.service';
 import { Body, Controller, Post, Request, Res, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth } from '@nestjs/swagger';
@@ -6,7 +8,10 @@ import { AuthService } from './auth.service';
 
 @Controller('auth')
 export class AuthController {
-    constructor(private authService: AuthService) { }
+    constructor(
+        private authService: AuthService,
+        private userService: UserService,
+    ) { }
 
 
     @Post('/login')
@@ -20,7 +25,7 @@ export class AuthController {
         };
         if (user != null) {
             const resTemp = await this.authService.createJWTToken(user);
-            result.user = resTemp.user;
+            result.user = new RspUser(await this.userService.getById(user.id));
             result.accessToken = resTemp.accessToken;
             return result;
         }

@@ -1,3 +1,4 @@
+import { FriendModule } from './../friend/friend.module';
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserController } from './user.controller';
@@ -6,7 +7,8 @@ import { UserService } from './user.service';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User])
+    TypeOrmModule.forFeature([User]),
+    FriendModule
   ],
   controllers: [UserController],
   providers: [UserService],

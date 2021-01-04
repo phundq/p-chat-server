@@ -27,4 +27,9 @@ export class UserController {
     updateUser(@Body() reqUserUpdate: ReqUserUpdate) {
         return this.userService.update(reqUserUpdate);
     }
+
+    @Post("/friend")
+    getListFiendByUserId(){
+        
+    }
 }

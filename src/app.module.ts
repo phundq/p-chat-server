@@ -10,6 +10,8 @@ import { ChatModule } from './chat/chat.module';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { SocketModule } from './socket/socket.module';
+import { FriendModule } from './friend/friend.module';
+import { Friend } from './friend/friend.model.i';
 
 @Module({
   imports: [
@@ -22,13 +24,14 @@ import { SocketModule } from './socket/socket.module';
         username: 'root',
         password: '123456',
         database: 'pchat',
-        entities: [User],
+        entities: [User, Friend],
         synchronize: true,
       }
     ),
     UserModule,
     AuthModule,
-    SocketModule
+    SocketModule,
+    FriendModule
   ]
   ,
   controllers: [AppController],
@@ -38,6 +41,6 @@ export class AppModule {
   constructor(private connection: Connection) { }
 
   public configure(consumer: MiddlewareConsumer) {
-    consumer.apply(AuthMiddleware).forRoutes(UserController);
+   // consumer.apply(AuthMiddleware).forRoutes(UserController);
   }
 }

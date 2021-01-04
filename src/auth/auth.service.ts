@@ -22,7 +22,7 @@ export class AuthService {
         return null;
     }
 
-    async createJWTToken(user: User) {      
+    async createJWTToken(user: User) {
         return {
             user: {
                 id: user.id,
