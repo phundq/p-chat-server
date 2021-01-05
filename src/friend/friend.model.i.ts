@@ -6,7 +6,7 @@ export class Friend {
     @PrimaryGeneratedColumn({ name: "id" })
     id?: number;
 
-    @Column({ default: true, name: "is_block" })
+    @Column({ default: false, name: "is_block" })
     isBlock?: boolean;
 
     @Column({ name: "user_id" })
