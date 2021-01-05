@@ -1,17 +1,17 @@
-import { AuthMiddleware } from './common/middleware/auth.middleware';
-import { UserController } from './user/user.controller';
-import { User } from './user/user.model.i';
 import { MiddlewareConsumer, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Connection } from 'typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { ChatModule } from './chat/chat.module';
-import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
-import { SocketModule } from './socket/socket.module';
-import { FriendModule } from './friend/friend.module';
+import { ChatModule } from './chat/chat.module';
+import { File } from './file/file.model.i';
+import { FileModule } from './file/file.module';
 import { Friend } from './friend/friend.model.i';
+import { FriendModule } from './friend/friend.module';
+import { SocketModule } from './socket/socket.module';
+import { User } from './user/user.model.i';
+import { UserModule } from './user/user.module';
 
 @Module({
   imports: [
@@ -24,14 +24,15 @@ import { Friend } from './friend/friend.model.i';
         username: 'root',
         password: '123456',
         database: 'pchat',
-        entities: [User, Friend],
+        entities: [User, Friend, File],
         synchronize: true,
       }
     ),
     UserModule,
     AuthModule,
     SocketModule,
-    FriendModule
+    FriendModule,
+    FileModule
   ]
   ,
   controllers: [AppController],
@@ -41,6 +42,6 @@ export class AppModule {
   constructor(private connection: Connection) { }
 
   public configure(consumer: MiddlewareConsumer) {
-   // consumer.apply(AuthMiddleware).forRoutes(UserController);
+    // consumer.apply(AuthMiddleware).forRoutes(UserController);
   }
 }

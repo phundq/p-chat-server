@@ -34,7 +34,6 @@ export class SocketService {
 
     async generateNewToken() {
         if (this.user != null) {
-            console.log(await this.jwtService.generateToken(this.user));
             let accessToken = {
                 token: await this.jwtService.generateToken(this.user),
                 expiresIn: jwtConstants.accessTokenExpires,

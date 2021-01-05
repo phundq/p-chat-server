@@ -1,5 +1,6 @@
 import { User } from './../user/user.model.i';
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { File } from 'src/file/file.model.i';
 @Entity()
 export class Friend {
     @PrimaryGeneratedColumn({ name: "id" })
@@ -44,15 +45,13 @@ export class RspFriend {
 
     constructor(friend: Friend) {
         for (var key of Object.keys(friend)) {
-            if (key !== "user"){
-                console.log(key);
+            if (key !== "user") {
                 this[key] = friend[key];
             }
         }
-
-        this.userId = friend.user.id;
         this.username = friend.user.username;
         this.fullName = friend.user.fullName;
         this.role = friend.user.role;
+        this.avatar = (friend.user.avatar.data != undefined && friend.user.avatar.data != null) ? friend.user.avatar.data : "";
     }
 }

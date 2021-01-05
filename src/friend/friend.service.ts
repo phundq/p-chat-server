@@ -16,6 +16,7 @@ export class FriendService extends BaseService<Friend, FriendRepository> {
     async findByUserId(userId: number): Promise<RspFriend[]> {
         const friends: Friend[] = await this.repository.createQueryBuilder("friend")
             .leftJoinAndSelect("friend.user", "user")
+            .leftJoinAndSelect("user.avatar", "avatar")
             .where("friend.user_id = :userIdP", { userIdP: userId })
             .getMany();
         if (friends) {

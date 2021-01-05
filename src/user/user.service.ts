@@ -25,7 +25,7 @@ export class UserService extends BaseService<User, UserRepository>{
     async getById(id: number): Promise<User> {
         let user = await this.repository
             .createQueryBuilder("user")
-            // .leftJoinAndSelect("user.friends", "friends")
+            .leftJoinAndSelect("user.avatar", "avatar")
             .where("user.id = :idParam", { idParam: id })
             .getOne();
             if (user) {

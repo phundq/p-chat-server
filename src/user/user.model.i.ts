@@ -1,6 +1,7 @@
 import { IsEmail, IsNotEmpty } from 'class-validator';
+import { File } from 'src/file/file.model.i';
 import { Friend } from 'src/friend/friend.model.i';
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { RspFriend } from './../friend/friend.model.i';
 
 export enum ERole {
@@ -35,6 +36,10 @@ export class User {
 
     @Column({ name: "modified", type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
     modified?: Date;
+
+    @ManyToOne(type => File)
+    @JoinColumn({ name: "file_id" })
+    avatar: File;
 }
 
 export class ReqUserCreate {
@@ -65,6 +70,7 @@ export class RspUser {
     isActive?: boolean;
     created?: Date;
     modified?: Date;
+    avatar?: File;
 
     constructor(user: User) {
         for (var key of Object.keys(user)) {

@@ -103,7 +103,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
       console.log(err);
     }
     this.connectedList.forEach((value, index) => {
-      if (value.userId === payload.receiveId) {
+      if (value.userId === payload.receiveId || value.userId == payload.senderId) {
         this.server.to(value.client.id).emit(SocketConstants.CHAT_TO_CLIENT, payload);
       }
     })
